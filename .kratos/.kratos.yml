@@ -1,0 +1,56 @@
+serve:
+  public:
+    base_url: http://127.0.0.1:3000/
+  admin:
+    base_url: http://kratos:4434/
+
+selfservice:
+  default_browser_return_url: http://127.0.0.1:3000/
+  whitelisted_return_urls:
+    - http://127.0.0.1:3000
+
+  strategies:
+    password:
+      enabled: true
+
+  flows:
+    error:
+      ui_url: http://127.0.0.1:3000/error
+
+    settings:
+      ui_url: http://127.0.0.1:3000/auth/settings
+      privileged_session_max_age: 15m
+
+    recovery:
+      enabled: true
+      ui_url: http://127.0.0.1:3000/auth/recovery
+
+    logout:
+      after:
+        default_browser_return_url: http://127.0.0.1:3000/auth/login
+
+    login:
+      ui_url: http://127.0.0.1:3000/auth/login
+      request_lifespan: 10m
+
+    registration:
+      request_lifespan: 10m
+      ui_url: http://127.0.0.1:3000/auth/registration
+      after:
+        password:
+          hooks:
+            - hook: session
+
+log:
+  level: debug
+
+hashers:
+  argon2:
+    parallelism: 1
+    memory: 131072
+    iterations: 2
+    salt_length: 16
+    key_length: 16
+
+identity:
+  default_schema_url: file:///etc/config/kratos/identity.traits.schema.json

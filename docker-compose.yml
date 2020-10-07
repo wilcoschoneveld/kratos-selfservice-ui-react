@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: local
+      POSTGRES_USER: postgres
+      POSTGRES_DB: kratos
+  
+  kratos-migrate:
+    image: oryd/kratos:v0.4.6-alpha.1
+    command: migrate sql -e --yes
+    environment:
+      DSN: postgresql://postgres:local@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+    restart: on-failure
+      
+  kratos:
+    image: oryd/kratos:v0.4.6-alpha.1
+    ports:
+      - 4433:4433
+      - 4434:4434
+    volumes:
+      - ./.kratos:/etc/config/kratos
+    command: serve -c /etc/config/kratos/.kratos.yml --dev
+    environment:
+      DSN: postgresql://postgres:local@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      COURIER_SMTP_CONNECTION_URI: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
+      SECRETS_COOKIE: you-should-change-me
+
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - 4436:4436
+      - 4437:4437
